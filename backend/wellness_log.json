@@ -1,0 +1,22 @@
+[
+  {
+    "date": "2025-11-24",
+    "timestamp": "2025-11-24T20:26:10.295188",
+    "mood": "tired",
+    "energy": "2-3",
+    "goals": [
+      "study for my mid-term examination"
+    ],
+    "summary": "Feeling tired with 2-3 energy."
+  },
+  {
+    "date": "2025-11-24",
+    "timestamp": "2025-11-24T20:31:01.213279",
+    "mood": "great",
+    "energy": "high",
+    "goals": [
+      "complete coding session"
+    ],
+    "summary": "Feeling great with high energy."
+  }
+]
