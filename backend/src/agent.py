@@ -1,224 +1,170 @@
 import logging
-import json
-import os
 import asyncio
-from datetime import datetime
-from typing import Annotated, List
-from dataclasses import dataclass, field
-
-print("\n" + "Wellness" * 20)
-print("Day 3 – Health & Wellness Voice Companion LOADED!")
-print("Wellness" * 20 + "\n")
-
 from dotenv import load_dotenv
-from pydantic import Field  # ← THIS WAS MISSING!
 
 from livekit.agents import (
-    Agent,
-    AgentSession,
+    AutoSubscribe,
     JobContext,
     JobProcess,
-    RoomInputOptions,
     WorkerOptions,
     cli,
-    metrics,
-    MetricsCollectedEvent,
-    RunContext,
+    tokenize,
     function_tool,
+    RunContext,
+    RoomInputOptions,
 )
-
+from livekit.agents import llm as lk_llm
+from livekit.agents.pipeline import VoicePipelineAgent
 from livekit.plugins import murf, silero, google, deepgram, noise_cancellation
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
-logger = logging.getLogger("wellness-agent")
 load_dotenv(".env.local")
+logger = logging.getLogger("tutor-coach")
 
-# ======================================================
-# WELLNESS LOG PERSISTENCE
-# ======================================================
-WELLNESS_LOG_FILE = "wellness_log.json"
-
-def load_wellness_history() -> List[dict]:
-    if not os.path.exists(WELLNESS_LOG_FILE):
-        return []
-    try:
-        with open(WELLNESS_LOG_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"Could not load history: {e}")
-        return []
-
-def save_wellness_entry(entry: dict):
-    history = load_wellness_history()
-    history.append(entry)
-    with open(WELLNESS_LOG_FILE, "w", encoding="utf-8") as f:
-        json.dump(history, f, indent=2, ensure_ascii=False)
-    print(f"\nWELLNESS ENTRY SAVED → {entry['date']}")
-    print(json.dumps(entry, indent=2))
-
-# ======================================================
-# USERDATA & STATE
-# ======================================================
-@dataclass
-class WellnessState:
-    mood: str | None = None
-    energy_level: str | None = None
-    goals: List[str] = field(default_factory=list)
-
-    def is_complete(self) -> bool:
-        return bool(self.mood and self.energy_level and self.goals)
-
-@dataclass
-class Userdata:
-    wellness: WellnessState = field(default_factory=WellnessState)
-    session_start: datetime = field(default_factory=datetime.now)
-    memory_line: str = ""  # reference to last session
-
-# ======================================================
-# FUNCTION TOOLS
-# ======================================================
-
-@function_tool
-async def record_mood(
-    ctx: RunContext[Userdata],
-    mood: Annotated[str, Field(description="How the user is feeling today (e.g. calm, stressed, happy, tired)")],
-) -> str:
-    ctx.userdata.wellness.mood = mood.strip()
-    print(f"MOOD → {mood}")
-    return f"Thanks for sharing — you're feeling {mood.lower()} today."
-
-@function_tool
-async def record_energy(
-    ctx: RunContext[Userdata],
-    energy: Annotated[str, Field(description="User's current energy level")],
-) -> str:
-    ctx.userdata.wellness.energy_level = energy.strip()
-    print(f"ENERGY → {energy}")
-    return f"got it — energy feels {energy.lower()}."
-
-@function_tool
-async def set_goals(
-    ctx: RunContext[Userdata],
-    goals: Annotated[List[str], Field(description="List of 1–3 realistic daily intentions/goals")],
-) -> str:
-    cleaned = [g.strip() for g in goals if g.strip()]
-    ctx.userdata.wellness.goals = cleaned
-    print(f"GOALS → {cleaned}")
-    return f"perfect — today you're aiming to: {', '.join(cleaned) or 'take it easy'}."
-
-@function_tool
-async def complete_checkin(ctx: RunContext[Userdata]) -> str:
-    w = ctx.userdata.wellness
-    if not w.is_complete():
-        missing = []
-        if not w.mood: missing.append("mood")
-        if not w.energy_level: missing.append("energy")
-        if not w.goals: missing.append("goals")
-        return f"almost done — just need your {', '.join(missing)}."
-
-    entry = {
-        "date": datetime.now().strftime("%Y-%m-%d"),
-        "timestamp": datetime.now().isoformat(),
-        "mood": w.mood,
-        "energy": w.energy_level,
-        "goals": w.goals,
-        "summary": f"Feeling {w.mood.lower()} with {w.energy_level.lower()} energy."
+# --- 1. EMBEDDED CONTENT ---
+COURSE_CONTENT = [
+    {
+        "id": "variables",
+        "title": "Variables",
+        "summary": "A variable is a labeled box for storing data. In Python, you assign values like 'x = 5'. This lets you reuse data without typing it again.",
+        "question": "In your own words, why do we use variables?"
+    },
+    {
+        "id": "loops",
+        "title": "Loops",
+        "summary": "Loops repeat actions. A 'For Loop' runs through a list. A 'While Loop' runs as long as a condition is true.",
+        "question": "What is the difference between a For loop and a While loop?"
     }
-    save_wellness_entry(entry)
+]
 
-    recap = (
-        f"Here's your check-in for today:\n"
-        f"• Mood: {w.mood}\n"
-        f"• Energy: {w.energy_level}\n"
-        f"• Goals: {', '.join(w.goals)}\n\n"
-        f"You've got this! See you tomorrow"
-    )
-    print("\nCHECK-IN COMPLETE & SAVED!")
-    return recap
+# Voice IDs (Murf Falcon)
+VOICE_LEARN = "en-US-matthew"
+VOICE_QUIZ = "en-US-alicia"
+VOICE_TEACH = "en-US-ken"
 
-# ======================================================
-# AGENT
-# ======================================================
-class WellnessCompanion(Agent):
-    def __init__(self, memory_line: str = ""):
-        instructions = f"""
-You are a warm, supportive daily wellness companion — like a caring friend checking in.
+def get_topic_summary():
+    topics = [f"- {item['id']}: {item['title']}" for item in COURSE_CONTENT]
+    return "\n".join(topics)
 
-NEVER diagnose or give medical advice.
+# --- 2. THE TOOLS (Context Class) ---
+class TutorTools(lk_llm.FunctionContext):
+    def __init__(self, tts_plugin):
+        super().__init__()
+        self.tts = tts_plugin # Store reference to TTS so we can change it
 
-Flow for every short session (2–4 min):
-1. Greet warmly. If there's a memory line, use it naturally: "{memory_line}"
-2. Ask how they're feeling (mood)
-3. Ask about energy
-4. Ask for 1–3 small realistic goals
-5. Offer one tiny grounded suggestion (e.g. "maybe a short walk?")
-6. Recap and confirm
-7. Call complete_checkin when ready
+    @function_tool
+    async def switch_learning_mode(
+        self, 
+        context: RunContext, 
+        mode: str, 
+        topic_id: str
+    ) -> str:
+        """
+        Switch the learning mode and voice.
+        Args:
+            mode: Must be 'learn', 'quiz', or 'teach_back'.
+            topic_id: The id of the topic (e.g., 'variables', 'loops').
+        """
+        logger.info(f"🔄 Requesting switch to mode: {mode} for topic: {topic_id}")
 
-Be encouraging, gentle, and human. Use light emojis. Today is {datetime.now().strftime("%A, %B %d, %Y")}.
-"""
-        super().__init__(
-            instructions=instructions,
-            tools=[record_mood, record_energy, set_goals, complete_checkin],
+        # Find topic
+        topic_data = next((item for item in COURSE_CONTENT if item["id"] == topic_id), None)
+        if not topic_data:
+            return "Topic not found. Ask user to pick 'variables' or 'loops'."
+
+        # Update Voice and Instructions
+        system_update = ""
+        voice_name = "Unknown"
+
+        if mode == "learn":
+            self.tts.voice = VOICE_LEARN
+            voice_name = "Matthew (Teacher)"
+            system_update = (
+                f"ROLE: Professor Matthew. "
+                f"TASK: Explain '{topic_data['title']}' using this summary: '{topic_data['summary']}'. "
+                f"Keep it clear and simple."
+            )
+            
+        elif mode == "quiz":
+            self.tts.voice = VOICE_QUIZ
+            voice_name = "Alicia (Examiner)"
+            system_update = (
+                f"ROLE: Examiner Alicia. "
+                f"TASK: Ask this question: '{topic_data['question']}'. Wait for answer. Grade it."
+            )
+
+        elif mode == "teach_back":
+            self.tts.voice = VOICE_TEACH
+            voice_name = "Ken (Student)"
+            system_update = (
+                f"ROLE: Student Ken. "
+                f"TASK: Say 'I don't understand {topic_data['title']}. Can you explain it?' "
+                f"If they miss details from: '{topic_data['summary']}', ask follow-up questions."
+            )
+
+        logger.info(f"✅ Switched Voice to: {voice_name}")
+        
+        # Return instruction to the LLM
+        return (
+            f"SYSTEM_UPDATE: Voice successfully changed to {voice_name}. "
+            f"NEW INSTRUCTIONS: {system_update} "
+            f"ACTION: Start speaking immediately in your new persona."
         )
 
-# ======================================================
-# PREWARM
-# ======================================================
+# --- 3. STARTUP ---
 def prewarm(proc: JobProcess):
-    print("Prewarming Silero VAD...")
     proc.userdata["vad"] = silero.VAD.load()
 
-# ======================================================
-# ENTRYPOINT
-# ======================================================
 async def entrypoint(ctx: JobContext):
-    print("\nSTARTING DAY 3 WELLNESS COMPANION")
+    ctx.log_context_fields = {"room": ctx.room.name}
+    
+    # 1. Setup Instructions
+    topics_text = get_topic_summary()
+    instructions = f"""
+    You are an Active Recall Coach.
+    AVAILABLE TOPICS:
+    {topics_text}
 
-    # Load past check-in for memory
-    history = load_wellness_history()
-    memory_line = ""
-    if history:
-        last = history[-1]
-        last_date = datetime.strptime(last["date"], "%Y-%m-%d").strftime("%A")
-        memory_line = f"Last time on {last_date}, you were feeling {last['mood'].lower()}. How does today compare?"
+    MODES:
+    1. Learn (Professor Matthew explains)
+    2. Quiz (Examiner Alicia tests)
+    3. Teach-Back (Student Ken asks you to explain)
 
-    userdata = Userdata(memory_line=memory_line)
+    GOAL: Greet user. Ask for Topic AND Mode.
+    Once chosen, CALL 'switch_learning_mode' IMMEDIATELY.
+    """
 
-    session = AgentSession(
+    # 2. Chat Context (The fixed way)
+    chat_ctx = lk_llm.ChatContext()
+    chat_ctx.append(text=instructions, role="system")
+
+    # 3. Configure TTS
+    murf_tts = murf.TTS(
+        voice=VOICE_LEARN, 
+        style="Conversation",
+        tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+        text_pacing=True
+    )
+
+    # 4. Build Pipeline
+    agent = VoicePipelineAgent(
+        vad=ctx.proc.userdata.get("vad") or silero.VAD.load(),
         stt=deepgram.STT(model="nova-3"),
-        llm=google.LLM(model="gemini-2.5-flash"),
-        tts=murf.TTS(
-            voice="en-US-matthew",
-            style="Conversational",
-            speed=1.0,
-        ),
-        turn_detection=MultilingualModel(),
-        vad=ctx.proc.userdata["vad"],
-        userdata=userdata,
+        llm=google.LLM(model="gemini-1.5-flash-002"),
+        tts=murf_tts,
+        noise_cancellation=noise_cancellation.BVC(),
+        turn_detector=MultilingualModel(),
+        chat_ctx=chat_ctx,
+        fnc_ctx=TutorTools(tts_plugin=murf_tts), # Pass TTS to tools
+        preemptive_synthesis=True,
     )
+    
+    await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
+    participant = await ctx.wait_for_participant()
+    agent.start(ctx.room, participant=participant)
+    
+    # 5. Greeting
+    await agent.say("Hello! I am your Tutor. We can study Variables or Loops. Do you want to Learn, Quiz, or Teach-Back?", allow_interruptions=True)
 
-    await session.start(
-        agent=WellnessCompanion(memory_line=memory_line),
-        room=ctx.room,
-        room_input_options=RoomInputOptions(noise_cancellation=noise_cancellation.BVC()),
-    )
-
-    await ctx.connect(auto_subscribe=True)
-
-    greeting = "Hey there, it's your daily wellness check-in. How are you feeling today?"
-    if memory_line:
-        greeting = f"Hey again! {memory_line} How are you feeling today?"
-
-    await asyncio.sleep(1)
-    await session.say(greeting, allow_interruptions=True)
-
-# ======================================================
-# LAUNCH
-# ======================================================
 if __name__ == "__main__":
-    print("\nLaunching Day 3 – Health & Wellness Voice Companion")
-    print("Powered by Murf Falcon – the FASTEST TTS API")
-    print("Wellness" * 30 + "\n")
-
     cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint, prewarm_fnc=prewarm))

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "variables",
+    "title": "Variables",
+    "summary": "A variable is like a labeled box where you can store data. In Python, you assign a value to a name, like 'x = 5'. This allows you to reference and manipulate that data later in your program without typing the raw value every time.",
+    "question": "In your own words, why do we use variables instead of just typing numbers directly?"
+  },
+  {
+    "id": "loops",
+    "title": "Loops",
+    "summary": "Loops allow code to repeat. A 'For Loop' iterates over a sequence (like a list), running the code once for each item. A 'While Loop' keeps running as long as a specific condition remains true. They are essential for automating repetitive tasks.",
+    "question": "What is the main difference between a For loop and a While loop?"
+  }
+]
