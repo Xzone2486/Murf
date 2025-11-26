@@ -1,0 +1,60 @@
+{
+  "company_info": {
+    "name": "Razorpay",
+    "description": "Razorpay is India's leading full-stack financial solutions company. We help businesses accept payments, make payouts, and manage their finances.",
+    "mission": "To power the financial ecosystem for disruptors."
+  },
+  "products": [
+    {
+      "name": "Payment Gateway",
+      "description": "Accept domestic and international payments with 100+ payment modes including UPI, Cards, Netbanking, and Wallets."
+    },
+    {
+      "name": "RazorpayX",
+      "description": "Supercharge your business banking. Automate payroll, pay vendors, and manage corporate cards."
+    },
+    {
+      "name": "Payment Links",
+      "description": "Share payment links via SMS, Email, or WhatsApp and get paid instantly."
+    },
+    {
+      "name": "Payroll",
+      "description": "Automate salary payments and compliance for your employees."
+    }
+  ],
+  "pricing": {
+    "standard": "2% per transaction for Indian Consumer Credit Cards, Netbanking, UPI, and Wallets. 3% for International cards and Diners/Amex cards.",
+    "enterprise": "Custom pricing available for high volumes. Includes dedicated support and early access to new features.",
+    "setup_fee": "Zero setup fee and zero annual maintenance fee for the standard plan."
+  },
+  "faqs": [
+    {
+      "question": "What is Razorpay?",
+      "answer": "Razorpay is a payments platform that helps businesses accept, process, and disburse payments with its product suite."
+    },
+    {
+      "question": "How do I sign up?",
+      "answer": "You can sign up completely online. Just visit razorpay.com, click 'Sign Up', and submit your KYC documents."
+    },
+    {
+      "question": "Is there a free tier?",
+      "answer": "We don't have a 'free tier' per se, but there are no setup or maintenance fees. You only pay a small transaction fee when you accept a payment."
+    },
+    {
+      "question": "Do you support international payments?",
+      "answer": "Yes, Razorpay supports international payments in over 100 currencies."
+    },
+    {
+      "question": "What documents are required for KYC?",
+      "answer": "Typically, you need your PAN card, GST certificate (if applicable), and business bank account details."
+    },
+    {
+      "question": "How long does settlement take?",
+      "answer": "Standard settlement cycle is T+2 days, meaning funds are deposited in your account 2 working days after the transaction."
+    },
+    {
+      "question": "Can I use Razorpay without a website?",
+      "answer": "Yes! You can use Payment Links or Payment Pages to accept payments without a website or app."
+    }
+  ]
+}
