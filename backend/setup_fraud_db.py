@@ -1,12 +1,16 @@
 import sqlite3
 import os
 
-DB_FILE = "fraud_cases.db"
+DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fraud_cases.db")
 
 def setup_db():
     if os.path.exists(DB_FILE):
-        os.remove(DB_FILE)
-        print(f"Removed existing {DB_FILE}")
+        try:
+            os.remove(DB_FILE)
+            print(f"Removed existing {DB_FILE}")
+        except PermissionError:
+            print(f"Error: Could not remove {DB_FILE}. It might be in use.")
+            return
 
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -32,17 +36,17 @@ def setup_db():
 
     # Insert sample data
     sample_case = (
-        "John",
-        "12345",
-        "4242",
+        "Ansh",
+        "98765",
+        "1234",
         "pending_review",
-        "ABC Industry",
+        "Flipkart",
         "2023-10-27 14:30:00",
         "e-commerce",
-        "alibaba.com",
-        "$1,250.00",
-        "What is your mother's maiden name?",
-        "Smith",
+        "flipkart.com",
+        "Rs.1,250.00",
+        "What is your favorite food?",
+        "Biryani",
         ""
     )
 
@@ -62,7 +66,11 @@ def setup_db():
     cursor.execute("SELECT * FROM fraud_cases")
     rows = cursor.fetchall()
     for row in rows:
-        print(row)
+        try:
+            print(row)
+        except UnicodeEncodeError:
+            safe_row = str(row).replace('\u20b9', 'Rs.')
+            print(safe_row)
 
     conn.close()
 

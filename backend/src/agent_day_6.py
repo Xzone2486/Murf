@@ -1,3 +1,4 @@
+import os
 import logging
 import sqlite3
 import asyncio
@@ -23,11 +24,16 @@ load_dotenv(".env.local")
 logger = logging.getLogger("fraud-agent")
 logger.setLevel(logging.INFO)
 
-DB_FILE = "fraud_cases.db"
+DB_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "fraud_cases.db")
 
 class FraudDB:
     def __init__(self, db_path):
         self.db_path = db_path
+        print(f"DEBUG: Initializing FraudDB with path: {self.db_path}")
+        if os.path.exists(self.db_path):
+            print("DEBUG: DB file exists.")
+        else:
+            print("DEBUG: DB FILE DOES NOT EXIST AT THIS PATH!")
 
     def get_case_by_username(self, username):
         conn = sqlite3.connect(self.db_path)
@@ -53,6 +59,40 @@ class FraudDB:
             }
         return None
 
+    def get_active_case(self):
+        try:
+            print(f"DEBUG: Attempting to connect to {self.db_path}")
+            if not os.path.exists(self.db_path):
+                return None, f"DB file not found at {self.db_path}"
+                
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM fraud_cases ORDER BY id DESC LIMIT 1")
+            row = cursor.fetchone()
+            conn.close()
+            if row:
+                print(f"DEBUG: Found case: {row}")
+                return {
+                    "id": row[0],
+                    "userName": row[1],
+                    "securityIdentifier": row[2],
+                    "cardEnding": row[3],
+                    "case_status": row[4],
+                    "transactionName": row[5],
+                    "transactionTime": row[6],
+                    "transactionCategory": row[7],
+                    "transactionSource": row[8],
+                    "transactionAmount": row[9],
+                    "securityQuestion": row[10],
+                    "securityAnswer": row[11],
+                    "outcome_note": row[12]
+                }, None
+            print("DEBUG: No rows found in fraud_cases table.")
+            return None, "No rows found in table"
+        except Exception as e:
+            print(f"DEBUG: Error in get_active_case: {e}")
+            return None, str(e)
+
     def update_case_status(self, case_id, status, note):
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -63,16 +103,16 @@ class FraudDB:
 db = FraudDB(DB_FILE)
 
 @function_tool
-def get_fraud_case(username: Annotated[str, "The username of the customer"]) -> str:
-    """Retrieve the fraud case details for a given username."""
-    logger.info(f"Looking up case for user: {username}")
-    case = db.get_case_by_username(username)
+async def get_active_fraud_case() -> str:
+    """Retrieve the most recent fraud case to investigate."""
+    print("DEBUG: get_active_fraud_case TOOL CALLED!")
+    case, error = db.get_active_case()
     if case:
-        return f"Found case: {case}"
-    return "No case found for that username."
+        return f"Found active case: {case}"
+    return f"Error retrieving case: {error}. Path used: {db.db_path}"
 
 @function_tool
-def update_case_status(
+async def update_case_status(
     case_id: Annotated[int, "The ID of the fraud case"],
     status: Annotated[str, "The new status: 'confirmed_safe' or 'confirmed_fraud'"],
     note: Annotated[str, "A short note about the outcome"]
@@ -87,20 +127,14 @@ class FraudAgent(Agent):
         super().__init__(
             instructions=(
                 "You are a fraud detection representative for Murf Bank. "
-                "Your goal is to verify a suspicious transaction with the customer. "
-                "You must be professional, calm, and reassuring. "
-                "Do NOT ask for real PII (passwords, full card numbers, PINs). "
-                "You have access to a database of fraud cases. "
-                "Start by asking for the customer's username to look up their file. "
-                "Once you have the username, use the `get_fraud_case` tool to retrieve details. "
-                "Then, verify the user by asking their security question (found in the case details). "
-                "If they answer correctly, read the transaction details (Merchant, Amount, Date) and ask if they made it. "
-                "If they say YES: Mark case as 'confirmed_safe' using `update_case_status`. "
-                "If they say NO: Mark case as 'confirmed_fraud' using `update_case_status` and explain that the card is blocked. "
-                "If verification fails: End the call politely. "
-                "Always be concise."
+                "Your PRIORITY is to retrieve the case details immediately. "
+                "1. Call `get_active_fraud_case` NOW to get the customer's name and transaction. "
+                "2. Once you have the case, ask: 'Am I speaking with {userName}?' "
+                "3. If confirmed, ask the security question. "
+                "4. Then read the transaction details and ask if they made it. "
+                "Do not make up data. If the tool fails, say 'System Error'. "
             ),
-            tools=[get_fraud_case, update_case_status]
+            tools=[get_active_fraud_case, update_case_status]
         )
 
 def prewarm(proc: JobProcess):
@@ -109,7 +143,9 @@ def prewarm(proc: JobProcess):
 async def entrypoint(ctx: JobContext):
     logger.info(f"connecting to room {ctx.room.name}")
 
-    tts = murf.TTS(voice="en-US-matthew", style="Conversational", speed=1.0)
+    # tts = murf.TTS(voice="en-US-matthew", style="Conversational", speed=1.0)
+    # tts = google.TTS()
+    tts = deepgram.TTS()
 
     session = AgentSession(
         stt=deepgram.STT(model="nova-3"),
@@ -126,7 +162,7 @@ async def entrypoint(ctx: JobContext):
 
     async def greet():
         await asyncio.sleep(1)
-        await session.say("Hello, this is the Fraud Department at Murf Bank. I'm calling about some suspicious activity on your account. Could you please confirm your username so I can pull up your file?", allow_interruptions=True)
+        await session.say("Hello, this is the Fraud Department at Murf Bank. I'm calling about some suspicious activity on your account.", allow_interruptions=True)
 
     # Greet immediately
     asyncio.create_task(greet())

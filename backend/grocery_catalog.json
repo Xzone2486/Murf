@@ -1,0 +1,126 @@
+{
+  "products": [
+    {
+      "id": "bread_whole_wheat",
+      "name": "Whole Wheat Bread",
+      "category": "Groceries",
+      "price": 3.5,
+      "unit": "loaf",
+      "tags": ["vegan", "healthy", "bakery"]
+    },
+    {
+      "id": "milk_whole",
+      "name": "Whole Milk",
+      "category": "Groceries",
+      "price": 4.0,
+      "unit": "gallon",
+      "tags": ["dairy", "fresh"]
+    },
+    {
+      "id": "eggs_dozen",
+      "name": "Organic Eggs",
+      "category": "Groceries",
+      "price": 5.5,
+      "unit": "dozen",
+      "tags": ["dairy", "protein"]
+    },
+    {
+      "id": "peanut_butter",
+      "name": "Creamy Peanut Butter",
+      "category": "Pantry",
+      "price": 4.25,
+      "unit": "jar",
+      "tags": ["vegan", "protein"]
+    },
+    {
+      "id": "jelly_grape",
+      "name": "Grape Jelly",
+      "category": "Pantry",
+      "price": 3.0,
+      "unit": "jar",
+      "tags": ["vegan", "sweet"]
+    },
+    {
+      "id": "pasta_spaghetti",
+      "name": "Spaghetti Pasta",
+      "category": "Pantry",
+      "price": 2.0,
+      "unit": "box",
+      "tags": ["vegan", "italian"]
+    },
+    {
+      "id": "sauce_marinara",
+      "name": "Marinara Sauce",
+      "category": "Pantry",
+      "price": 3.5,
+      "unit": "jar",
+      "tags": ["vegan", "italian"]
+    },
+    {
+      "id": "cheese_parmesan",
+      "name": "Parmesan Cheese",
+      "category": "Groceries",
+      "price": 6.0,
+      "unit": "wedge",
+      "tags": ["dairy", "italian"]
+    },
+    {
+      "id": "apple_fuji",
+      "name": "Fuji Apple",
+      "category": "Produce",
+      "price": 0.75,
+      "unit": "each",
+      "tags": ["vegan", "fruit", "healthy"]
+    },
+    {
+      "id": "banana",
+      "name": "Banana",
+      "category": "Produce",
+      "price": 0.3,
+      "unit": "each",
+      "tags": ["vegan", "fruit", "healthy"]
+    },
+    {
+      "id": "chips_potato",
+      "name": "Potato Chips",
+      "category": "Snacks",
+      "price": 3.0,
+      "unit": "bag",
+      "tags": ["vegan", "salty"]
+    },
+    {
+      "id": "soda_cola",
+      "name": "Cola Soda",
+      "category": "Beverages",
+      "price": 1.5,
+      "unit": "can",
+      "tags": ["drink", "sweet"]
+    },
+    {
+      "id": "pizza_frozen",
+      "name": "Frozen Pepperoni Pizza",
+      "category": "Frozen",
+      "price": 8.0,
+      "unit": "box",
+      "tags": ["meal", "convenience"]
+    },
+    {
+      "id": "ice_cream_vanilla",
+      "name": "Vanilla Ice Cream",
+      "category": "Frozen",
+      "price": 5.0,
+      "unit": "pint",
+      "tags": ["dairy", "dessert"]
+    }
+  ],
+  "recipes": {
+    "peanut butter sandwich": [
+      "bread_whole_wheat",
+      "peanut_butter",
+      "jelly_grape"
+    ],
+    "pasta": ["pasta_spaghetti", "sauce_marinara", "cheese_parmesan"],
+    "breakfast": ["eggs_dozen", "bread_whole_wheat", "milk_whole"],
+    "snack time": ["chips_potato", "soda_cola"]
+  }
+}
