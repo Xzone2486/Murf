@@ -1,0 +1,66 @@
+{
+  "timestamp": 1764360754.4760919,
+  "order_date": "2025-11-29 01:42:34",
+  "cart": {
+    "items": [
+      {
+        "product_id": "atta_ashirvaad",
+        "name": "Aashirvaad Whole Wheat Atta",
+        "quantity": 1,
+        "price": 450.0,
+        "total": 450.0
+      },
+      {
+        "product_id": "potato",
+        "name": "Potato",
+        "quantity": 1,
+        "price": 30.0,
+        "total": 30.0
+      },
+      {
+        "product_id": "spices_chilli",
+        "name": "Red Chilli Powder",
+        "quantity": 1,
+        "price": 45.0,
+        "total": 45.0
+      },
+      {
+        "product_id": "oil_mustard",
+        "name": "Fortune Mustard Oil",
+        "quantity": 1,
+        "price": 180.0,
+        "total": 180.0
+      },
+      {
+        "product_id": "salt_tata",
+        "name": "Tata Salt",
+        "quantity": 1,
+        "price": 25.0,
+        "total": 25.0
+      },
+      {
+        "product_id": "tea_tata_gold",
+        "name": "Tata Tea Gold",
+        "quantity": 1,
+        "price": 150.0,
+        "total": 150.0
+      },
+      {
+        "product_id": "sugar",
+        "name": "Sugar",
+        "quantity": 1,
+        "price": 45.0,
+        "total": 45.0
+      },
+      {
+        "product_id": "milk_amul_gold",
+        "name": "Amul Gold Milk",
+        "quantity": 1,
+        "price": 66.0,
+        "total": 66.0
+      }
+    ],
+    "total": 991.0
+  },
+  "status": "placed"
+}

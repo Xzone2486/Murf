@@ -1,126 +1,171 @@
 {
   "products": [
     {
-      "id": "bread_whole_wheat",
-      "name": "Whole Wheat Bread",
-      "category": "Groceries",
-      "price": 3.5,
-      "unit": "loaf",
-      "tags": ["vegan", "healthy", "bakery"]
+      "id": "atta_ashirvaad",
+      "name": "Aashirvaad Whole Wheat Atta",
+      "category": "Staples",
+      "price": 450.00,
+      "unit": "10kg bag",
+      "tags": ["flour", "staple", "veg"]
     },
     {
-      "id": "milk_whole",
-      "name": "Whole Milk",
-      "category": "Groceries",
-      "price": 4.0,
-      "unit": "gallon",
+      "id": "rice_basmati",
+      "name": "India Gate Basmati Rice",
+      "category": "Staples",
+      "price": 850.00,
+      "unit": "5kg bag",
+      "tags": ["rice", "staple", "veg"]
+    },
+    {
+      "id": "dal_toor",
+      "name": "Toor Dal",
+      "category": "Staples",
+      "price": 160.00,
+      "unit": "1kg pack",
+      "tags": ["dal", "protein", "veg"]
+    },
+    {
+      "id": "dal_moong",
+      "name": "Moong Dal",
+      "category": "Staples",
+      "price": 140.00,
+      "unit": "1kg pack",
+      "tags": ["dal", "protein", "veg"]
+    },
+    {
+      "id": "oil_mustard",
+      "name": "Fortune Mustard Oil",
+      "category": "Oils",
+      "price": 180.00,
+      "unit": "1L pouch",
+      "tags": ["oil", "cooking"]
+    },
+    {
+      "id": "ghee_amul",
+      "name": "Amul Pure Ghee",
+      "category": "Dairy",
+      "price": 550.00,
+      "unit": "1L carton",
+      "tags": ["dairy", "cooking"]
+    },
+    {
+      "id": "milk_amul_gold",
+      "name": "Amul Gold Milk",
+      "category": "Dairy",
+      "price": 66.00,
+      "unit": "1L pack",
       "tags": ["dairy", "fresh"]
     },
     {
-      "id": "eggs_dozen",
-      "name": "Organic Eggs",
-      "category": "Groceries",
-      "price": 5.5,
-      "unit": "dozen",
-      "tags": ["dairy", "protein"]
+      "id": "paneer_amul",
+      "name": "Amul Malai Paneer",
+      "category": "Dairy",
+      "price": 90.00,
+      "unit": "200g pack",
+      "tags": ["dairy", "protein", "veg"]
     },
     {
-      "id": "peanut_butter",
-      "name": "Creamy Peanut Butter",
-      "category": "Pantry",
-      "price": 4.25,
-      "unit": "jar",
-      "tags": ["vegan", "protein"]
+      "id": "curd_amul",
+      "name": "Amul Masti Dahi",
+      "category": "Dairy",
+      "price": 35.00,
+      "unit": "400g cup",
+      "tags": ["dairy", "fresh"]
     },
     {
-      "id": "jelly_grape",
-      "name": "Grape Jelly",
-      "category": "Pantry",
-      "price": 3.0,
-      "unit": "jar",
-      "tags": ["vegan", "sweet"]
+      "id": "spices_turmeric",
+      "name": "Turmeric Powder (Haldi)",
+      "category": "Spices",
+      "price": 40.00,
+      "unit": "100g pack",
+      "tags": ["spice", "cooking"]
     },
     {
-      "id": "pasta_spaghetti",
-      "name": "Spaghetti Pasta",
-      "category": "Pantry",
-      "price": 2.0,
-      "unit": "box",
-      "tags": ["vegan", "italian"]
+      "id": "spices_chilli",
+      "name": "Red Chilli Powder",
+      "category": "Spices",
+      "price": 45.00,
+      "unit": "100g pack",
+      "tags": ["spice", "cooking"]
     },
     {
-      "id": "sauce_marinara",
-      "name": "Marinara Sauce",
-      "category": "Pantry",
-      "price": 3.5,
-      "unit": "jar",
-      "tags": ["vegan", "italian"]
+      "id": "spices_garam_masala",
+      "name": "Everest Garam Masala",
+      "category": "Spices",
+      "price": 80.00,
+      "unit": "100g box",
+      "tags": ["spice", "cooking"]
     },
     {
-      "id": "cheese_parmesan",
-      "name": "Parmesan Cheese",
-      "category": "Groceries",
-      "price": 6.0,
-      "unit": "wedge",
-      "tags": ["dairy", "italian"]
-    },
-    {
-      "id": "apple_fuji",
-      "name": "Fuji Apple",
-      "category": "Produce",
-      "price": 0.75,
-      "unit": "each",
-      "tags": ["vegan", "fruit", "healthy"]
-    },
-    {
-      "id": "banana",
-      "name": "Banana",
-      "category": "Produce",
-      "price": 0.3,
-      "unit": "each",
-      "tags": ["vegan", "fruit", "healthy"]
-    },
-    {
-      "id": "chips_potato",
-      "name": "Potato Chips",
-      "category": "Snacks",
-      "price": 3.0,
-      "unit": "bag",
-      "tags": ["vegan", "salty"]
-    },
-    {
-      "id": "soda_cola",
-      "name": "Cola Soda",
+      "id": "tea_tata_gold",
+      "name": "Tata Tea Gold",
       "category": "Beverages",
-      "price": 1.5,
-      "unit": "can",
-      "tags": ["drink", "sweet"]
+      "price": 150.00,
+      "unit": "250g pack",
+      "tags": ["tea", "beverage"]
     },
     {
-      "id": "pizza_frozen",
-      "name": "Frozen Pepperoni Pizza",
-      "category": "Frozen",
-      "price": 8.0,
-      "unit": "box",
-      "tags": ["meal", "convenience"]
+      "id": "sugar",
+      "name": "Sugar",
+      "category": "Staples",
+      "price": 45.00,
+      "unit": "1kg pack",
+      "tags": ["sweetener", "cooking"]
     },
     {
-      "id": "ice_cream_vanilla",
-      "name": "Vanilla Ice Cream",
-      "category": "Frozen",
-      "price": 5.0,
-      "unit": "pint",
-      "tags": ["dairy", "dessert"]
+      "id": "salt_tata",
+      "name": "Tata Salt",
+      "category": "Staples",
+      "price": 25.00,
+      "unit": "1kg pack",
+      "tags": ["salt", "cooking"]
+    },
+    {
+      "id": "onion",
+      "name": "Onion",
+      "category": "Produce",
+      "price": 40.00,
+      "unit": "1kg",
+      "tags": ["vegetable", "fresh"]
+    },
+    {
+      "id": "potato",
+      "name": "Potato",
+      "category": "Produce",
+      "price": 30.00,
+      "unit": "1kg",
+      "tags": ["vegetable", "fresh"]
+    },
+    {
+      "id": "tomato",
+      "name": "Tomato",
+      "category": "Produce",
+      "price": 50.00,
+      "unit": "1kg",
+      "tags": ["vegetable", "fresh"]
+    },
+    {
+      "id": "maggie",
+      "name": "Maggi 2-Minute Noodles",
+      "category": "Snacks",
+      "price": 14.00,
+      "unit": "pack",
+      "tags": ["snack", "instant"]
+    },
+    {
+      "id": "biscuits_parle_g",
+      "name": "Parle-G Biscuits",
+      "category": "Snacks",
+      "price": 10.00,
+      "unit": "pack",
+      "tags": ["snack", "biscuit"]
     }
   ],
   "recipes": {
-    "peanut butter sandwich": [
-      "bread_whole_wheat",
-      "peanut_butter",
-      "jelly_grape"
-    ],
-    "pasta": ["pasta_spaghetti", "sauce_marinara", "cheese_parmesan"],
-    "breakfast": ["eggs_dozen", "bread_whole_wheat", "milk_whole"],
-    "snack time": ["chips_potato", "soda_cola"]
+    "dal tadka": ["dal_toor", "onion", "tomato", "spices_turmeric", "spices_chilli", "ghee_amul"],
+    "paneer butter masala": ["paneer_amul", "onion", "tomato", "ghee_amul", "spices_garam_masala", "cream_amul"],
+    "chai": ["tea_tata_gold", "sugar", "milk_amul_gold"],
+    "aloo paratha": ["atta_ashirvaad", "potato", "spices_chilli", "oil_mustard"],
+    "rice and dal": ["rice_basmati", "dal_toor", "ghee_amul"]
   }
 }

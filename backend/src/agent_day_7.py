@@ -82,9 +82,9 @@ class Cart:
             if product:
                 line_total = product["price"] * qty
                 total_price += line_total
-                summary_lines.append(f"- {qty} {product['unit']}(s) of {product['name']} (${line_total:.2f})")
+                summary_lines.append(f"- {qty} {product['unit']}(s) of {product['name']} (₹{line_total:.2f})")
         
-        summary_lines.append(f"Total: ${total_price:.2f}")
+        summary_lines.append(f"Total: ₹{total_price:.2f}")
         return "\n".join(summary_lines)
 
     def to_dict(self):
@@ -105,17 +105,20 @@ class Cart:
 class GroceryAgent(Agent):
     def __init__(self):
         self.cart = Cart()
-        super().__init__(
-            instructions=(
-                "You are a friendly and helpful grocery shopping assistant for 'FreshMart'. "
-                "You can help users browse the catalog, add items to their cart, and place orders. "
-                "You can also help with ingredients for simple meals like sandwiches or pasta. "
-                "Always confirm actions like adding items or placing orders. "
-                "When the user asks for 'ingredients for X', check if you have a recipe for it. "
-                "If the user says they are done or wants to place the order, use the place_order tool. "
-                "Keep your responses concise and natural for voice interaction."
-            )
+        
+        # Create a dynamic system prompt with available recipes
+        recipe_list = ", ".join(RECIPES.keys())
+        instructions = (
+            "You are a friendly and helpful grocery shopping assistant for 'FreshMart'. "
+            "You can help users browse the catalog, add items to their cart, and place orders. "
+            f"You can also help with ingredients for meals. I have recipes for: {recipe_list}. "
+            "Always confirm actions like adding items or placing orders. "
+            "When the user asks for 'ingredients for X', use the 'add_ingredients_for_recipe' tool. "
+            "If the user says they are done or wants to place the order, use the place_order tool. "
+            "Keep your responses concise and natural for voice interaction."
         )
+        
+        super().__init__(instructions=instructions)
 
     @function_tool
     async def add_to_cart(
@@ -274,7 +277,7 @@ async def entrypoint(ctx: JobContext):
     await ctx.connect(auto_subscribe=True)
 
     # Initial greeting
-    await session.say("Hi there! Welcome to FreshMart. I can help you order groceries or ingredients for meals. What would you like to get today?", allow_interruptions=True)
+    await session.say("Hi there! Welcome to FreshMart. I can help you order groceries or ingredients for meals like Dal Tadka or Aloo Paratha. What would you like to get today?", allow_interruptions=True)
 
 
 if __name__ == "__main__":
