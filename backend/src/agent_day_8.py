@@ -49,12 +49,11 @@ async def entrypoint(ctx: JobContext):
     logger.info(f"connecting to room {ctx.room.name}")
     
     session = AgentSession(
-        stt=deepgram.STT(model="nova-3"),
+        stt=deepgram.STT(model="nova-2"),
         llm=google.LLM(model="gemini-2.5-flash"),
-        tts=deepgram.TTS(model="aura-asteria-en"),
+        tts=deepgram.TTS(),
         turn_detection=MultilingualModel(),
         vad=ctx.proc.userdata["vad"],
-        preemptive_generation=True,
     )
 
     agent = GameMasterAgent()
